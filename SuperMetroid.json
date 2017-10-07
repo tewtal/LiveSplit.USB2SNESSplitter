@@ -1,0 +1,229 @@
+{
+  "game": "Super Metroid",
+  "autostart": {
+    "active": "1",
+    "address": "0x0998",
+    "value": "0x1f",
+    "type": "eq"
+  },
+  "categories": [
+    {
+      "name": "Any% KPDR",
+      "splits": [
+        "Morphing Ball",
+        "Bombs",
+        "Charge Beam",
+        "Varia Suit",
+        "Hi Jump",
+        "Speed Booster",
+        "Wave Beam",
+        "Power Bombs (Red Tower)",
+        "Phantoon",
+        "Gravity Suit",
+        "Maridia Glass Tube",
+        "Botwoon",
+        "Draygon",
+        "Plasma Beam",
+        "Ice Beam",
+        "Ridley",
+        "Golden 4",
+        "Metroid Rooms",
+        "Mother Brain 1 Down",
+        "Mother Brain 3 Down (Escape Message)",
+        "Ship"
+      ]
+    },
+    {
+      "name": "100%",
+      "splits": [
+        "Bombs",
+        "Charge Beam",
+        "Varia Suit",
+        "Wave Beam",
+        "Grappling Beam",
+        "Power Bombs (Red Tower)",
+        "Phantoon",
+        "Gravity Suit",
+        "Power Bomb (Etecoons)",
+        "Maridia Glass Tube",
+        "Draygon",
+        "Plasma Beam",
+        "Ice Beam",
+        "Golden Torizo",
+        "Ridley",
+        "Reserve Tank (Norfair)",
+        "X-Ray",
+        "Golden 4",
+        "Mother Brain 1 Down",
+        "Ship"
+      ]
+    },
+    {
+      "name": "Any% Glitched",
+      "splits": [
+        "Bombs",
+        "Power Bombs (Red Tower)",
+        "X-Ray",
+        "Ship"
+      ]
+    }
+  ],
+  "definitions": [
+    {
+      "name": "Morphing Ball",
+      "address": "0xd873",
+      "value": "0x04",
+      "type": "bit"
+    },
+    {
+      "name": "Bombs",
+      "address": "0xd870",
+      "value": "0x80",
+      "type": "bit"
+    },
+    {
+      "name": "Charge Beam",
+      "address": "0xd872",
+      "value": "0x80",
+      "type": "bit"
+    },
+    {
+      "name": "Varia Suit",
+      "address": "0xd876",
+      "value": "0x01",
+      "type": "bit"
+    },
+    {
+      "name": "Hi Jump",
+      "address": "0xd876",
+      "value": "0x20",
+      "type": "bit"
+    },
+    {
+      "name": "Speed Booster",
+      "address": "0xd878",
+      "value": "0x04",
+      "type": "bit"
+    },
+    {
+      "name": "Wave Beam",
+      "address": "0xd878",
+      "value": "0x10",
+      "type": "bit"
+    },
+    {
+      "name": "Grappling Beam",
+      "address": "0xd877",
+      "value": "0x10",
+      "type": "bit"
+    },
+    {
+      "name": "Power Bombs (Red Tower)",
+      "address": "0xd875",
+      "value": "0x01",
+      "type": "bit"
+    },
+    {
+      "name": "Phantoon",
+      "address": "0xd82b",
+      "value": "0x01",
+      "type": "bit"
+    },
+    {
+      "name": "Gravity Suit",
+      "address": "0xd880",
+      "value": "0x80",
+      "type": "bit"
+    },
+    {
+      "name": "Power Bomb (Etecoons)",
+      "address": "0xd871",
+      "value": "0x20",
+      "type": "bit"
+    },
+    {
+      "name": "Maridia Glass Tube",
+      "address": "0xd821",
+      "value": "0x08",
+      "type": "bit"
+    },
+    {
+      "name": "Botwoon",
+      "address": "0xd82c",
+      "value": "0x02",
+      "type": "bit"
+    },
+    {
+      "name": "Draygon",
+      "address": "0xd82c",
+      "value": "0x01",
+      "type": "bit"
+    },
+    {
+      "name": "Plasma Beam",
+      "address": "0xd881",
+      "value": "0x80",
+      "type": "bit"
+    },
+    {
+      "name": "Ice Beam",
+      "address": "0xd876",
+      "value": "0x04",
+      "type": "bit"
+    },
+    {
+      "name": "Golden Torizo",
+      "address": "0xd82a",
+      "value": "0x04",
+      "type": "bit"
+    },
+    {
+      "name": "Ridley",
+      "address": "0xd82a",
+      "value": "0x01",
+      "type": "bit"
+    },
+    {
+      "name": "Reserve Tank (Norfair)",
+      "address": "0xd877",
+      "value": "0x20",
+      "type": "bit"
+    },
+    {
+      "name": "X-Ray",
+      "address": "0x09a5",
+      "value": "0x80",
+      "type": "bit"
+    },
+    {
+      "name": "Golden 4",
+      "address": "0x079b",
+      "value": "0xa66a",
+      "type": "weq"
+    },
+    {
+      "name": "Metroid Rooms",
+      "address": "0xd822",
+      "value": "0x08",
+      "type": "bit"
+    },
+    {
+      "name": "Mother Brain 1 Down",
+      "address": "0xd820",
+      "value": "0x04",
+      "type": "bit"
+    },
+    {
+      "name": "Mother Brain 3 Down (Escape Message)",
+      "address": "0xd82d",
+      "value": "0x02",
+      "type": "bit"
+    },
+    {
+      "name": "Ship",
+      "address": "0x0fb2",
+      "value": "0xaa4f",
+      "type": "weq"
+    }
+  ]
+}
