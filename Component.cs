@@ -21,6 +21,7 @@ namespace LiveSplit.UI.Components
             public string address { get; set; }
             public string value { get; set; }
             public string type { get; set; }
+            public List<Split> more { get; set; }
 
             public uint addressint { get { return Convert.ToUInt32(address, 16); } }
             public uint valueint { get { return Convert.ToUInt32(value, 16); } }
@@ -73,7 +74,7 @@ namespace LiveSplit.UI.Components
             _inTimer = false;
             _error = false;
 
-            _update_timer = new Timer() { Interval = 16 };
+            _update_timer = new Timer() { Interval = 33 };
             _update_timer.Tick += (sender, args) => UpdateSplits();
             _update_timer.Enabled = true;
 
@@ -229,6 +230,51 @@ namespace LiveSplit.UI.Components
             }
         }
 
+        private bool checkSplit(Split split, uint value, uint word)
+        {
+            bool ret = false;
+            switch (split.type)
+            {
+                case "bit":
+                    if ((value & split.valueint) != 0) { ret = true; }
+                    break;
+                case "eq":
+                    if (value == split.valueint) { ret = true; }
+                    break;
+                case "gt":
+                    if (value > split.valueint) { ret = true; }
+                    break;
+                case "lt":
+                    if (value < split.valueint) { ret = true; }
+                    break;
+                case "gte":
+                    if (value >= split.valueint) { ret = true; }
+                    break;
+                case "lte":
+                    if (value <= split.valueint) { ret = true; }
+                    break;
+                case "wbit":
+                    if ((word & split.valueint) != 0) { ret = true; }
+                    break;
+                case "weq":
+                    if (word == split.valueint) { ret = true; }
+                    break;
+                case "wgt":
+                    if (word > split.valueint) { ret = true; }
+                    break;
+                case "wlt":
+                    if (word < split.valueint) { ret = true; }
+                    break;
+                case "wgte":
+                    if (word >= split.valueint) { ret = true; }
+                    break;
+                case "wlte":
+                    if (word <= split.valueint) { ret = true; }
+                    break;
+            }
+            return ret;
+        }
+
         public void UpdateSplits()
         {
             if (_inTimer == true)
@@ -328,44 +374,24 @@ namespace LiveSplit.UI.Components
                         uint value = (uint)data[0];
                         uint word = (uint)(data[0] + (data[1] << 8));
 
-                        switch (split.type)
+                        bool ok = checkSplit(split, value, word);
+                        if (split.more != null)
                         {
-                            case "bit":
-                                if((value & split.valueint) != 0) { DoSplit(); }
-                                break;
-                            case "eq":
-                                if (value == split.valueint) { DoSplit(); }
-                                break;
-                            case "gt":
-                                if (value > split.valueint) { DoSplit(); }
-                                break;
-                            case "lt":
-                                if (value < split.valueint) { DoSplit(); }
-                                break;
-                            case "gte":
-                                if (value >= split.valueint) { DoSplit(); }
-                                break;
-                            case "lte":
-                                if (value <= split.valueint) { DoSplit(); }
-                                break;
-                            case "wbit":
-                                if ((word & split.valueint) != 0) { DoSplit(); }
-                                break;
-                            case "weq":
-                                if (word == split.valueint) { DoSplit(); }
-                                break;
-                            case "wgt":
-                                if (word > split.valueint) { DoSplit(); }
-                                break;
-                            case "wlt":
-                                if (word < split.valueint) { DoSplit(); }
-                                break;
-                            case "wgte":
-                                if (word >= split.valueint) { DoSplit(); }
-                                break;
-                            case "wlte":
-                                if (word <= split.valueint) { DoSplit(); }
-                                break;
+                            foreach (var moreSplit in split.more)
+                            {
+                                core.SendCommand(core.usbint_server_opcode_e.USBINT_SERVER_OPCODE_GET, core.usbint_server_space_e.USBINT_SERVER_SPACE_SNES, core.usbint_server_flags_e.USBINT_SERVER_FLAGS_64BDATA, (0xF50000 + moreSplit.addressint), (uint)64);
+                                core.GetData(data, 0, 64);
+
+                                value = (uint)data[0];
+                                word = (uint)(data[0] + (data[1] << 8));
+
+                                ok = ok && checkSplit(moreSplit, value, word);
+                            }
+                        }
+
+                        if (ok)
+                        {
+                            DoSplit();
                         }
                     }
                 }
