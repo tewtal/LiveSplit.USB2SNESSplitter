@@ -54,12 +54,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
-    <Reference Include="usb2snescore, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\usb2snesw\usb2snescore\bin\Release\usb2snescore.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="USB2SnesW.cs" />
     <Compile Include="Component.cs" />
     <Compile Include="ComponentSettings.cs">
       <SubType>UserControl</SubType>
