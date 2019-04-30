@@ -6,10 +6,10 @@ using System.Windows.Forms;
 using System.Xml;
 using LiveSplit.Model;
 using LiveSplit.Options;
-using usb2snes.core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using USB2SnesW;
 
 namespace LiveSplit.UI.Components
 {
@@ -61,6 +61,7 @@ namespace LiveSplit.UI.Components
         private List<string> _splits;
         private bool _inTimer;
         private bool _error;
+        private USB2SnesW.USB2SnesW _usb2snes;
 
 
         public USB2SNESComponent(LiveSplitState state)
@@ -80,6 +81,7 @@ namespace LiveSplit.UI.Components
 
             _state.OnReset += _state_OnReset;
             _state.OnStart += _state_OnStart;
+            _usb2snes = new USB2SnesW.USB2SnesW();
         }
         
         private bool checkSplits()
@@ -102,19 +104,24 @@ namespace LiveSplit.UI.Components
 
         private bool connect()
         {
-            if (!core.Connected())
+            if (!_usb2snes.Connected())
             {
-                try
+                _usb2snes.Connect();
+                if (_usb2snes.Connected())
                 {
-                    core.Connect(_settings.COMPort);
+                    List<String> devices = _usb2snes.GetDevices();
+                    if (!devices.Contains(_settings.Device))
+                        return false;
+                    _usb2snes.SetName("LiveSplit AutoSplitter");
+                    _usb2snes.Attach(_settings.Device);
+                    _usb2snes.Info(); // Info is the only neutral way to know if we are attached to the device
                 }
-                catch
+                if (!_usb2snes.Connected())
                 {
                     MessageBox.Show("Could not connect to sd2snes, check serial port settings.");
                     return false;
                 }
             }
-
             return true;
         }
 
@@ -141,7 +148,7 @@ namespace LiveSplit.UI.Components
 
         private void _state_OnStart(object sender, EventArgs e)
         {
-            if(!core.Connected())
+            if(!_usb2snes.Connected())
             {
                 if(!this.connect())
                 {
@@ -171,11 +178,11 @@ namespace LiveSplit.UI.Components
 
         private void _state_OnReset(object sender, TimerPhase value)
         {
-            if (core.Connected())
+            if (_usb2snes.Connected())
             {
                 if(_settings.ResetSNES)
                 {
-                    core.SendCommand(core.usbint_server_opcode_e.USBINT_SERVER_OPCODE_RESET, core.usbint_server_space_e.USBINT_SERVER_SPACE_SNES, core.usbint_server_flags_e.USBINT_SERVER_FLAGS_NONE, 0);
+                    _usb2snes.Reset();
                 }
             }
         }
@@ -183,9 +190,9 @@ namespace LiveSplit.UI.Components
         public override void Dispose()
         {
             _update_timer?.Dispose();
-            if (core.Connected())
+            if (_usb2snes.Connected())
             {
-                core.Disconnect();
+                _usb2snes.Disconnect();
             }
         }
 
@@ -211,11 +218,10 @@ namespace LiveSplit.UI.Components
 
         public void DoSplit()
         {
-            if (_game.name == "Super Metroid" && core.Connected())
+            if (_game.name == "Super Metroid" && _usb2snes.Connected())
             {
                 var data = new byte[512];
-                core.SendCommand(core.usbint_server_opcode_e.USBINT_SERVER_OPCODE_GET, core.usbint_server_space_e.USBINT_SERVER_SPACE_SNES, core.usbint_server_flags_e.USBINT_SERVER_FLAGS_NONE, (uint)(0xF509DA), (uint)512);
-                core.GetData(data, 0, 512);
+                data = _usb2snes.GetAddress((uint)(0xF509DA), (uint)512);
                 int ms = (data[0] + (data[1] << 8)) * (1000 / 60);
                 int sec = data[2] + (data[3] << 8);
                 int min = data[4] + (data[5] << 8);
@@ -283,9 +289,9 @@ namespace LiveSplit.UI.Components
             _inTimer = true;
             if (_state.CurrentPhase == TimerPhase.NotRunning)
             {
-                if(_error == false && _settings.COMPort != null && _game == null && (!core.Connected()))
+                if(_error == false && _settings.Device != null && _game == null && (!_usb2snes.Connected()))
                 {
-                    if (!core.Connected())
+                    if (!_usb2snes.Connected())
                     {
                         if (!this.connect())
                         {
@@ -308,11 +314,10 @@ namespace LiveSplit.UI.Components
 
                 if (_game != null && _game.autostart.active == "1")
                 {
-                    if (core.Connected())
+                    if (_usb2snes.Connected())
                     {
                         var data = new byte[64];
-                        core.SendCommand(core.usbint_server_opcode_e.USBINT_SERVER_OPCODE_GET, core.usbint_server_space_e.USBINT_SERVER_SPACE_SNES, core.usbint_server_flags_e.USBINT_SERVER_FLAGS_64BDATA, (0xF50000 + _game.autostart.addressint), (uint)64);
-                        core.GetData(data, 0, 64);
+                        data = _usb2snes.GetAddress((0xF50000 + _game.autostart.addressint), (uint)64);
 
                         uint value = (uint)data[0];
                         uint word = (uint)(data[0] + (data[1] << 8));
@@ -363,13 +368,12 @@ namespace LiveSplit.UI.Components
             {
                 if (_splits != null)
                 {
-                    if (core.Connected())
+                    if (_usb2snes.Connected())
                     {
                         var splitName = _splits[_state.CurrentSplitIndex];
                         var split = _game.definitions.Where(x => x.name == splitName).First();
                         var data = new byte[64];
-                        core.SendCommand(core.usbint_server_opcode_e.USBINT_SERVER_OPCODE_GET, core.usbint_server_space_e.USBINT_SERVER_SPACE_SNES, core.usbint_server_flags_e.USBINT_SERVER_FLAGS_64BDATA, (0xF50000 + split.addressint), (uint)64);
-                        core.GetData(data, 0, 64);
+                        data =  _usb2snes.GetAddress((0xF50000 + split.addressint), (uint)64);
 
                         uint value = (uint)data[0];
                         uint word = (uint)(data[0] + (data[1] << 8));
@@ -379,8 +383,7 @@ namespace LiveSplit.UI.Components
                         {
                             foreach (var moreSplit in split.more)
                             {
-                                core.SendCommand(core.usbint_server_opcode_e.USBINT_SERVER_OPCODE_GET, core.usbint_server_space_e.USBINT_SERVER_SPACE_SNES, core.usbint_server_flags_e.USBINT_SERVER_FLAGS_64BDATA, (0xF50000 + moreSplit.addressint), (uint)64);
-                                core.GetData(data, 0, 64);
+                                data =  _usb2snes.GetAddress((0xF50000 + moreSplit.addressint), (uint)64);
 
                                 value = (uint)data[0];
                                 word = (uint)(data[0] + (data[1] << 8));

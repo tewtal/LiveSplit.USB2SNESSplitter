@@ -3,30 +3,31 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
+using USB2SnesW;
 
 namespace LiveSplit.UI.Components
 {
     public partial class ComponentSettings : UserControl
     {
 
-        public string COMPort { get; set; }
+        public string Device { get; set; }
         public string ConfigFile { get; set; }
         public bool ResetSNES { get; set; }
 
         public ComponentSettings()
         {
             InitializeComponent();
-            COMPort = "";
+            Device = "";
             ConfigFile = "";
 
-            txtComPort.DataBindings.Add("Text", this, "COMPort", false, DataSourceUpdateMode.OnPropertyChanged);
+            txtComPort.DataBindings.Add("Text", this, "Device", false, DataSourceUpdateMode.OnPropertyChanged);
             txtConfigFile.DataBindings.Add("Text", this, "ConfigFile", false, DataSourceUpdateMode.OnPropertyChanged);
             chkReset.DataBindings.Add("Checked", this, "ResetSNES", false, DataSourceUpdateMode.OnPropertyChanged);
         }
         public void SetSettings(XmlNode node)
         {
             var element = (XmlElement)node;
-            COMPort = SettingsHelper.ParseString(element["COMPort"]);
+            Device = SettingsHelper.ParseString(element["Device"]);
             ConfigFile = SettingsHelper.ParseString(element["ConfigFile"]);
             ResetSNES = SettingsHelper.ParseBool(element["ResetSNES"]);    
         }
@@ -46,7 +47,7 @@ namespace LiveSplit.UI.Components
         private int CreateSettingsNode(XmlDocument document, XmlElement parent)
         {
             return SettingsHelper.CreateSetting(document, parent, "Version", "1.2") ^
-            SettingsHelper.CreateSetting(document, parent, "COMPort", COMPort) ^
+            SettingsHelper.CreateSetting(document, parent, "Device", Device) ^
             SettingsHelper.CreateSetting(document, parent, "ConfigFile", ConfigFile) ^
             SettingsHelper.CreateSetting(document, parent, "ResetSNES", ResetSNES);
         }
@@ -63,15 +64,23 @@ namespace LiveSplit.UI.Components
 
         private void btnDetect_Click(object sender, EventArgs e)
         {
-            var devices = usb2snes.core.core.GetDeviceList();
-            if(devices.Count > 0)
+            USB2SnesW.USB2SnesW usb = new USB2SnesW.USB2SnesW();
+            bool ok = usb.Connect();
+            
+            if (ok)
             {
-                txtComPort.Text = devices[0].Name;
+                List<String> devices;
+                devices = usb.GetDevices();
+                if (devices.Count > 0)
+                    txtComPort.Text = devices[0];
+                return;
             }
-            else
-            {
-                MessageBox.Show("Could not auto-detect sd2snes, make sure the SNES is turned on and the USB-cable is connected");
-            }
+            MessageBox.Show("Could not auto-detect usb2snes compatible device, make sure it's connected and QUsb2Snes is running");
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
